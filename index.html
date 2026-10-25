@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Command Studio</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand-mark">⌘</div>
+    <div class="brand-copy">
+      <strong>COMMAND STUDIO</strong>
+      <span>Progettazione del linguaggio di gioco</span>
+    </div>
+    <div class="top-actions">
+      <span class="save-indicator" id="saveIndicator">● Salvato in locale</span>
+      <button class="button secondary" id="importBtn">Importa JSON</button>
+      <button class="button primary" id="exportAllBtn">Esporta archivio</button>
+      <input type="file" id="importFile" accept=".json,application/json" hidden>
+    </div>
+  </header>
+  <main class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-heading">
+        <span>ARCHIVIO COMANDI</span>
+        <button class="icon-button" id="newCommandBtn" title="Nuovo comando" aria-label="Nuovo comando">＋</button>
+      </div>
+      <label class="search-wrap"><span>⌕</span><input id="searchInput" type="search" placeholder="Cerca nome, categoria…"></label>
+      <div class="archive-stats">
+        <div><strong id="commandCount">0</strong><span>comandi</span></div>
+        <div><strong id="draftCount">0</strong><span>bozze</span></div>
+      </div>
+      <div id="commandList" class="command-list"></div>
+      <div class="sidebar-footer"><span class="status-dot"></span>Archivio locale · offline</div>
+    </aside>
+    <section class="workspace">
+      <div id="emptyState" class="empty-state">
+        <div class="empty-icon">⌘</div><h1>Progetta il tuo linguaggio</h1>
+        <p>Crea il primo comando oppure importa un archivio JSON esistente.</p>
+        <button class="button primary" id="emptyNewBtn">＋ Crea un comando</button>
+      </div>
+      <div id="editorView" hidden>
+        <div class="page-heading">
+          <div><div class="eyebrow" id="editorEyebrow">NUOVO COMANDO</div><h1 id="editorTitle">Definizione del comando</h1><p>Definisci la documentazione e le regole del comando.</p></div>
+          <div class="heading-actions"><button class="button secondary" id="duplicateBtn">Duplica</button><button class="button danger-ghost" id="deleteBtn">Elimina</button></div>
+        </div>
+        <div class="editor-grid">
+          <form id="commandForm" class="form-column">
+            <section class="panel">
+              <div class="panel-heading"><span class="step">01</span><div><h2>Identità</h2><p>Come viene riconosciuto il comando.</p></div></div>
+              <div class="field-grid">
+                <label class="field"><span>Titolo / nome comando *</span><input id="titleInput" required placeholder="Es. scan"></label>
+                <label class="field"><span>Categoria</span><input id="categoryInput" placeholder="Es. Analisi"></label>
+                <label class="field full"><span>Breve descrizione</span><textarea id="descriptionInput" rows="2" placeholder="Spiega in poche righe cosa fa il comando."></textarea></label>
+                <label class="field"><span>Stato</span><select id="statusInput"><option value="draft">Bozza</option><option value="in-progress">In sviluppo</option><option value="complete">Completo</option></select></label>
+                <label class="field"><span>ID univoco</span><input id="idInput" readonly></label>
+              </div>
+            </section>
+            <section class="panel">
+              <div class="panel-heading"><span class="step">02</span><div><h2>Sintassi</h2><p>La forma esatta da digitare nel terminale del gioco.</p></div></div>
+              <label class="field"><span>Modello di sintassi</span><input id="syntaxInput" placeholder="scan &lt;bersaglio&gt; --mode &lt;modalita&gt;"></label>
+              <p class="field-hint">Usa segnaposto espliciti, per esempio <code>&lt;bersaglio&gt;</code>. La sintassi viene documentata, non eseguita.</p>
+            </section>
+            <section class="panel">
+              <div class="panel-heading"><span class="step">03</span><div><h2>Argomenti</h2><p>Valori posizionali inseriti dopo il nome del comando.</p></div><button type="button" class="button small secondary" id="addArgumentBtn">＋ Aggiungi</button></div>
+              <div id="argumentsEditor" class="repeat-list"></div><div id="argumentsEmpty" class="inline-empty">Nessun argomento definito.</div>
+            </section>
+            <section class="panel">
+              <div class="panel-heading"><span class="step">04</span><div><h2>Opzioni e parametri</h2><p>Flag, valori ammessi e cosa comportano.</p></div><button type="button" class="button small secondary" id="addOptionBtn">＋ Aggiungi</button></div>
+              <div id="optionsEditor" class="repeat-list"></div><div id="optionsEmpty" class="inline-empty">Nessuna opzione definita.</div>
+            </section>
+            <section class="panel">
+              <div class="panel-heading"><span class="step">05</span><div><h2>Comportamento</h2><p>Effetti, prerequisiti e condizioni di fallimento.</p></div></div>
+              <div class="field-grid">
+                <label class="field full"><span>Effetti nel gioco</span><textarea id="effectsInput" rows="3" placeholder="Cosa cambia nel mondo di gioco? Risorse, allerta, stato…"></textarea></label>
+                <label class="field full"><span>Prerequisiti</span><textarea id="prerequisitesInput" rows="2" placeholder="Permessi, strumenti, condizioni o altri comandi necessari."></textarea></label>
+                <label class="field full"><span>Errori e condizioni di fallimento</span><textarea id="errorsInput" rows="2" placeholder="Cosa succede se il bersaglio non esiste o mancano requisiti?"></textarea></label>
+              </div>
+            </section>
+            <section class="panel">
+              <div class="panel-heading"><span class="step">06</span><div><h2>Esempi</h2><p>Comandi completi e spiegazione del risultato atteso.</p></div><button type="button" class="button small secondary" id="addExampleBtn">＋ Aggiungi</button></div>
+              <div id="examplesEditor" class="repeat-list"></div><div id="examplesEmpty" class="inline-empty">Nessun esempio aggiunto.</div>
+            </section>
+            <section class="panel">
+              <div class="panel-heading"><span class="step">07</span><div><h2>Collegamenti</h2><p>Comandi correlati, note interne e dettagli di progettazione.</p></div></div>
+              <label class="field"><span>ID dei comandi correlati (separati da virgola)</span><input id="relatedInput" placeholder="es. connect, inspect, report"></label>
+              <label class="field"><span>Note di progettazione</span><textarea id="notesInput" rows="2" placeholder="Note per te, non necessariamente mostrate nella documentazione pubblica."></textarea></label>
+            </section>
+            <div class="form-actions"><span id="formMessage" class="form-message">Le modifiche vengono salvate automaticamente.</span><button class="button primary" type="submit">Salva comando</button></div>
+          </form>
+          <aside class="preview-column"><div class="preview-sticky">
+            <div class="preview-header"><div><span class="eyebrow">ANTEPRIMA LIVE</span><h2>Documentazione</h2></div><span class="preview-dot"></span></div>
+            <article id="documentationPreview" class="documentation"></article>
+            <div class="preview-actions"><button class="button secondary full-button" id="copySyntaxBtn">Copia sintassi</button><button class="button primary full-button" id="copyDocsBtn">Copia documentazione</button><button class="button secondary full-button" id="exportOneBtn">Esporta comando JSON</button></div>
+            <p class="privacy-note"><span>◆</span> I dati restano in questo browser finché non esporti un backup JSON.</p>
+          </div></aside>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="script.js"></script>
+</body>
+</html>
